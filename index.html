@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <!-- import Vue.js -->
+<script src="http://vuejs.org/js/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/vue-resource/1.3.4/vue-resource.js"></script>
+<!-- import stylesheet -->
+<link rel="stylesheet" href="http://unpkg.com/iview/dist/styles/iview.css">
+<!-- import iView -->
+<script src="http://unpkg.com/iview/dist/iview.min.js"></script>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .fade-enter-active {
+    transition: all 1s;
+}
+.fade-leave-active{
+    transition: all 0.7s;
+}
+.fade-enter/* .fade-leave-active 在低于版本 2.1.8 中 */ {
+    opacity: 0.1;
+    transform: rotateY(-45deg)  translateX(-2000px);
+}
+
+.fade-leave-to{
+    opacity: 0;
+    transform: rotateY(45deg)  translateX(800px);
+}
+
+            .fade2-enter-active {
+    transition: all 1s;
+}
+.fade2-leave-active{
+    transition: all 0.7s;
+}
+.fade2-enter/* .fade-leave-active 在低于版本 2.1.8 中 */ {
+    opacity: 0.1;
+    transform: rotateY(-45deg)  translateX(+2000px);
+}
+
+.fade2-leave-to{
+    opacity: 0;
+    transform: rotateY(45deg)  translateX(-800px);
+}
+            body{
+                
+            }
+   .layout{
+        border: 1px solid #d7dde4;
+       
+        position: relative;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .layout-header-bar{
+        background: #fff;
+        box-shadow: 0 1px 1px rgba(0,0,0,.1);
+    }
+    .layout-logo-left{
+        width: 90%;
+        height: 30px;
+        background: #5b6270;
+        border-radius: 3px;
+        margin: 15px auto;
+    }
+    .menu-icon{
+        transition: all .3s;
+    }
+    .rotate-icon{
+        transform: rotate(-90deg);
+    }
+    .menu-item span{
+        display: inline-block;
+        overflow: hidden;
+        width: 69px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: bottom;
+        transition: width .2s ease .2s;
+    }
+    .menu-item i{
+        transform: translateX(0px);
+        transition: font-size .2s ease, transform .2s ease;
+        vertical-align: middle;
+        font-size: 16px;
+    }
+    .collapsed-menu span{
+        width: 0px;
+        transition: width .2s ease;
+    }
+    .collapsed-menu i{
+        transform: translateX(5px);
+        transition: font-size .2s ease .2s, transform .2s ease .2s;
+        vertical-align: middle;
+        font-size: 22px;
+    }
+        </style>
+    </head>
+    <body>
+<div id="app">
+    <div class="layout">
+        <layout>
+        <Header v-bind:style="{background: 'rgb(253, 191, 191)'}">
+            <div style="width: 100%;height:60px;text-align: center;font-size: 14px;color:rgb(253, 191, 191)"><img src="http://wx3.sinaimg.cn/mw690/006Zdy2vgy1fsz1314b3jj30a00a0td9.jpg" style="margin-top:10px;border: 1px #fff none;border-radius: 20px;width:40px;height:40px"></div>
+            </Header>
+        <layout>
+            <sider ref="side1" hide-trigger collapsible v-bind:collapsed-width="78" v-model="turn.isCollapsed"  v-bind:style="{background: '#fff'}">
+                <i-menu active-name="1-1"  width="auto" theme="light"  v-bind:class="menuitemClasses">
+                    <menu-item name="1-1">
+                        <icon type="ios-navigate"></icon>
+                        <span>知乎爬图</span>
+                    </menu-item>
+                    
+                </i-menu>
+            </sider>
+            <layout>
+                <i-header v-bind:style="{padding: 0}" class="layout-header-bar">
+                    <icon @click.native="collapsedSider" v-bind:class="rotateIcon" v-bind:style="{margin: '20px 20px 0'}" type="navicon-round" size="24"></icon>
+                </i-header>
+                <i-content v-bind:style="{margin: '20px', background: '#fff', minHeight: '260px'}">
+                    <div style="margin-top: 10px;margin-left: 10px;margin-right: 10px">
+<row>
+    <div style="width: 100%;text-align: center;margin-bottom: 20px;border-bottom:  1px #d7dde4 solid ;border-radius: -16px;padding-bottom: 3px">
+         <i-input v-model="inputdata.d1" icon="ios-clock-outline" placeholder="authorization" style="width: 200px"></i-input>
+         <i-input v-model="inputdata.d2" icon="bug" placeholder="cookie" style="width: 200px"></i-input>
+         <i-input v-model="inputdata.d3" icon="ios-information" placeholder="titleNumber" style="width: 200px"></i-input>
+         <i-button type="primary" v-on:click='getPicdata()' shape="circle" size="small" icon="ios-search"></i-button>
+    </div>
+    </row>
+
+    <row>
+           <div style='margin-left: 3%;min-height: 500px;'>
+            <div v-for="li in nowpicdata" nowrap style='display: inline-block;width:24%;height:200px;overflow: hidden;position: relative;margin-right: 3px;'><img style='width: 100%;position: absolute;top:50%;transform:  translateY(-50%)' v-on:click="imgnow(li)" v-bind:src='li' alt='图'></div>
+            <div v-if='!nowpicdata[0]' style='margin-top:10%;text-align: center'>空空如也,要不你爬个？</div>
+           </div>
+    </row>
+  
+    <row>
+        <div v-if='turn.trog'  style="text-align: center;margin-top: 10px;" >
+        <page v-bind:total="picdata.length" v-bind:current="1" @on-change="text" page-size="20" key='Z'></page>
+        </div>
+        <div v-else='trog'  style="text-align: center;margin-top: 10px;" key='ZZ'>
+        <page v-bind:total="picdata.length" v-bind:current="1" @on-change="text" page-size="20"></page>
+        </div>
+    </row>
+                        <spin class='加载' size="large" fix v-if="turn.load"></spin>
+                  </div>
+                </i-content>
+            </layout>
+        </layout>
+            </layout>
+   </div>
+                        <div v-if='turn.modal' class='图片轮播' style='width:93%;height:90%;position: fixed;top:7%;left:5%;background-color: rgba(0,0,0,0.3);z-index: 999'>
+                            <div style='float:right;margin-right: 10px;' v-on:click='cInterval(loop,()=>{turn.modal = false})'><Icon   type="close" size='20'></Icon></div>
+                            <div style='width: 80%;height: 90%;margin: 0 auto;position: relative;top:5%;overflow: hidden;text-align: center'>
+                                
+                                <transition  v-bind:name='transitionname' >
+                                    <img style="max-width: 100%;position: absolute;max-height: 100%;top:50%;transform: translateX(-50%) translateY(-50%)" v-bind:src='nowsrc' v-if="turn.imgshow"  key="p_top0" />
+                                    <img v-else v-bind:src='nextsrc' style="max-width: 100%;position: absolute;max-height: 100%;top:50%;transform: translateX(-50%) translateY(-50%)" key="p_top1" />
+                                </transition>
+                               
+                               <!-- <div style='width:300%;height: 100%;transform: translateX(-33.3%);position: relative'>
+                                <div style='display: inline-block;width:33.3%;height: 100%;background-color: #ff3333;position: relative;'></div>
+                                <div style='display: inline-block;width:33.3%;height: 100%;background-color: #fff;'></div>
+                                <div style='position: absolute;top:0%;float:right;display: inline-block;width:33.3%;height: 100%;background-color: #33ffcc'></div>
+                                </div> -->
+                            </div>
+                            <div style='margin: 0 auto;width:50%;text-align: center;'>
+                                <button-group shape="circle">
+        <i-button type="ghost" v-on:click='imgpre()'>
+            <icon type="chevron-left"></icon>
+            Backward
+        </i-button>
+                                    <i-button @click='imgrotate()' type="ghost" >幻灯片播放</i-button>
+        <i-button type="ghost" v-on:click='imgnext() '>
+            Forward
+            <icon type="chevron-right"></icon>
+        </i-button>
+    </button-group>
+                            </div>
+                            
+                            
+                        </div>
+                        
+</div>
+                    
+        <script>
+
+
+let vue = new Vue({
+    el:'#app',
+    data:{
+        turn:{isCollapsed:false,modal:false,imgshow:false,trog:false,load:false},
+        inputdata:{d1:'',d2:'',d3:''},
+        picdata:'',
+        piccopydata:[],
+        nowpicdata:[],
+        nowsrc:'',
+        nextsrc:'',
+        value4:'',
+        transitionname:'fade2',
+        loop:''
+    },
+    computed:{
+        rotateIcon () {
+                return [
+                    'menu-icon',
+                    this.turn.isCollapsed ? 'rotate-icon' : ''
+                ];
+            },
+        menuitemClasses(){
+            return [
+                    'menu-item',
+                    this.turn.isCollapsed ? 'collapsed-menu' : ''
+                ];
+        }
+        
+    },
+        methods: {
+            collapsedSider () {
+                this.$refs.side1.toggleCollapse();
+            },
+            imgnow(li){
+                this.turn.modal = true;
+                this.nowsrc = li;
+                this.nextsrc = li;
+            },
+            imgpre(){
+               
+                this.transitionname = 'fade';
+                
+                var that = this.nextsrc;
+               var index = this.nowpicdata.findIndex((n)=>{
+                   return  n == that;
+               });
+                if(index !== 0){
+                    
+                    this.turn.imgshow = !this.turn.imgshow ;
+                    this.nowsrc = this.nowpicdata[index-1];
+               this.nextsrc = this.nowpicdata[index-1];
+                }
+               
+            },
+            imgnext(){
+                
+                 this.transitionname = 'fade2';
+               
+                var that = this.nextsrc;
+               var index = this.nowpicdata.findIndex((n)=>{
+                   return  n == that;
+               });
+                if(index !== this.nowpicdata.length-1){
+                   
+                    this.turn.imgshow = !this.turn.imgshow ;
+                    this.nowsrc = this.nowpicdata[index+1];
+               this.nextsrc = this.nowpicdata[index+1];
+               return 'notdone';
+                }else{
+                    return 'done';
+                }
+            },
+            imgrotate(){
+                
+               this.loop = setInterval(()=>{let val = this.imgnext();
+               if(val == 'done'){
+                  
+                   clearInterval(this.loop);
+               }
+                },3000) ;
+            },
+            cInterval(value,func = null){
+               
+                    clearInterval(value);
+                
+              
+               
+                if(func){
+                    func();
+                }
+                
+            },
+        getPicdata(){
+            vue.turn.trog = !vue.turn.trog;
+            this.nowpicdata =[];
+            this.turn.load = true;
+            Vue.http.get( 'http://localhost:3000',{params:{num:this.inputdata.d3,random:Math.random()}}).then(  (response) => {
+                this.picdata = eval(response.body);
+                this.piccopydata = [];
+                   this.picdata.forEach((data,index)=>{
+                     this.piccopydata[index] = data; 
+                 });
+                 this.nowpicdata = this.piccopydata.splice(0,20);
+                 this.turn.load = false;
+            },()=>{alert('出错了 你是否设置了浏览器跨域？因为图片是防盗的，不能直接获取');this.turn.load = false;} );
+          
+        },
+        text(page){
+            this.piccopydata = [];
+                   this.picdata.forEach((data,index)=>{
+                     this.piccopydata[index] = data; 
+                 });
+            if(page==1){
+                
+                this.nowpicdata =[];
+                setTimeout(()=>{
+                    this.nowpicdata = this.piccopydata.splice(0,20);
+                },300);
+                                
+                             
+            }else{
+                this.nowpicdata =[];
+                setTimeout(()=>{
+                    this.nowpicdata = this.piccopydata.splice((page-1)*20-1,20);
+                },300);
+                
+            }
+            
+            
+        }
+        }
+});
+            
+        </script>
+    </body>
+</html>
